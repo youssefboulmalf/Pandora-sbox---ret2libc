@@ -7,6 +7,8 @@ Consider giving this a star if you found it helpfull
 
 
 
+### exploration
+
 After downloading the pb file we run the ```file ./pb``` command wich gives the folowing output:
 
 ![alt text](images/file.png?raw=true "File")
@@ -32,6 +34,9 @@ If we open the program in gdb we can get a better look at what is going on insid
 ![alt text](images/overflow.png?raw=true "overflow")
 
 Because the file is a 64 bit elf the RIP address has to be a 48 bit canonical address wich means the address has to be in the range ```0x0000000000000000``` to ```0x00007FFFFFFFFFFF``` and ```0xFFFF800000000000``` to ```0xFFFFFFFFFFFFFFFF```. otherwise the address wont be able to clutter the RIP. If we input a bunch of A's we are overwriting the rip with a non-canonical address. If we however run the program with 56 A's (offset) and add a 6 bytes canonial address of 6 B's ```0x0000424242424242``` to the end we can see we can control the RIP.
+
+
+### leaking adress
 
 The ret-to-libc technique is similar to the standard stack overflow attack with one important distinction: instead of overwriting the return address of the vulnerable function with the address of the shellcode, the return address is going to point to a function in the libc library like system(), so we can execute shell code that is stored in the regestry as arguments.
 
@@ -93,6 +98,9 @@ print("Leaked puts:" + str(hex(leak)))
 The payload consist of a padding, then the pop rdi gadget, adress of puts in got, adress of plt in puts, a ret gadget wich is just a ret instruction to do some stack alligments and not get SIGBUS or SIGEV (```ropper -f ./pb | grep ret```) and lastly an adress in main. I used the call to box() adress in main because returining to main directly seem to result in stack alligment issues. we can find this adress by using ```objdump ./pb -d``` and looking for the main function.
 
 ![alt text](images/calbox.png?raw=true "calbox")
+
+
+### calculating adresses, building payload and getting shell
 
 After that sending the payload the code returns a lot of bytes most of them being the banner of box() but the last few bytes are the adress of puts() in libc. now we cam just calculate the base adress of libc.
 
