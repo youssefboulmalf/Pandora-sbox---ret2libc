@@ -91,7 +91,7 @@ print("Leaked puts:" + str(hex(leak)))
 ```
 The payload consist of a padding, then the pop rdi gadget, adress of puts in got, adress of plt in puts, a ret gadget wich is just a ret instruction to do some stack alligments and not get SIGBUS or SIGEV (```ropper -f ./pb | grep ret```) and lastly an adress in main. I used the call to box() adress in main because returining to main directly seem to result in stack alligment issues. we can find this adress by using ```objdump ./pb -d``` and looking for the main function.
 
-![alt text](images/callbox.png?raw=true "callbox")
+![alt text](images/calbox.png?raw=true "calbox")
 
 After that sending the payload the code returns a lot of bytes most of them being the banner of box() but the last few bytes are the adress of puts() in libc. now we cam just calculate the base adress of libc.
 
